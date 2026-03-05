@@ -32,4 +32,4 @@ jobs:
           
           target-directory: 'test_workflows' 
           
-          target-branch: 'main'
+          target-branch: 'School-Catalogue'
