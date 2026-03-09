@@ -28,9 +28,16 @@ export class CatalogService {
   }
 
   async findCourseById(id: string) {
-    return this.prisma.course.findUnique({ 
-      where: { id }, 
-      include: { modules: { include: { lessons: true } } } 
+    return this.prisma.course.findUnique({
+      where: { id },
+      include: {
+        school: true,
+        modules: {
+          include: {
+            lessons: true,
+          },
+        },
+      },
     });
   }
 
@@ -57,5 +64,41 @@ export class CatalogService {
 
   async deleteLesson(id: string) {
     return this.prisma.lesson.delete({ where: { id } });
+  }
+
+  async findModuleById(id: string) {
+    return this.prisma.module.findUnique({
+      where: { id },
+      include: {
+        course: {
+          include: {
+            school: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findLessonById(id: string) {
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id },
+      include: {
+        module: {
+          include: {
+            course: {
+              include: {
+                school: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  
+    if (!lesson) {
+      throw new NotFoundException(`La leçon avec l'ID ${id} n'existe pas.`);
+    }
+  
+    return lesson;
   }
 }

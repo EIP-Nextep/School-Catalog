@@ -1,16 +1,18 @@
 import { Module } from '@nestjs/common';
-import { CatalogService } from './app.service';
+import { JwtModule } from '@nestjs/jwt';
 import { CatalogController } from './app.controller';
-import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from './prisma/prisma.module';
-import 'dotenv/config';
+import { CatalogService } from './app.service';
+import { AuthGuard } from './app.guard';
+import { PrismaService } from './prisma/prisma.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    PrismaModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET, 
+      signOptions: { expiresIn: '1d' },
+    }),
   ],
-  providers: [CatalogService],
   controllers: [CatalogController],
+  providers: [CatalogService, PrismaService, AuthGuard],
 })
 export class CatalogModule {}
