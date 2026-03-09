@@ -15,6 +15,17 @@ export class CatalogService {
     return school;
   }
 
+  async findAllSchools() {
+    return this.prisma.school.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        website: true,
+      },
+    });
+  }
+
   async deleteSchool(id: string) {
     return this.prisma.school.delete({ where: { id } });
   }
@@ -24,7 +35,30 @@ export class CatalogService {
   }
 
   async findAllCourses() {
-    return this.prisma.course.findMany({ include: { modules: true } });
+    return this.prisma.course.findMany({
+      include: {
+        school: true,
+        modules: {
+          include: {
+            lessons: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findSchoolCourses(schoolId: string) {
+    return this.prisma.course.findMany({
+      where: {schoolId},
+      include: {
+        school: true,
+        modules: {
+          include: {
+            lessons: true,
+          },
+        },
+      },
+    });
   }
 
   async findCourseById(id: string) {
@@ -48,13 +82,13 @@ export class CatalogService {
   // --- MODULES & LEÇONS ---
   async addModuleToCourse(courseId: string, data: any) {
     return this.prisma.module.create({
-      data: { ...data, courseId }
+      data: { ...data, courseId },
     });
   }
 
   async addLessonToModule(moduleId: string, data: any) {
     return this.prisma.lesson.create({
-      data: { ...data, moduleId }
+      data: { ...data, moduleId },
     });
   }
 
@@ -94,11 +128,11 @@ export class CatalogService {
         },
       },
     });
-  
+
     if (!lesson) {
       throw new NotFoundException(`La leçon avec l'ID ${id} n'existe pas.`);
     }
-  
+
     return lesson;
   }
 }
