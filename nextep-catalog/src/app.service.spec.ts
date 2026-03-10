@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CatalogService } from './app.service';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma/prisma.service';
 import { NotFoundException } from '@nestjs/common';
 
@@ -66,10 +67,10 @@ describe('CatalogService', () => {
         };
 
         it('should create a school', async () => {
-            const createData = { name: 'Test School', ownerId: 'owner-1' };
+            const createData: Prisma.SchoolUncheckedCreateInput = { name: 'Test School', ownerId: 'owner-1' };
             mockPrismaService.school.create.mockResolvedValue(mockSchool);
 
-            const result = await service.createSchool(createData as any);
+            const result = await service.createSchool(createData);
 
             expect(prisma.school.create).toHaveBeenCalledWith({ data: createData });
             expect(result).toEqual(mockSchool);
@@ -80,7 +81,9 @@ describe('CatalogService', () => {
 
             const result = await service.findSchoolById('1');
 
-            expect(prisma.school.findUnique).toHaveBeenCalledWith({ where: { id: '1' } });
+            expect(prisma.school.findUnique).toHaveBeenCalledWith({
+                where: { id: '1' },
+            });
             expect(result).toEqual(mockSchool);
         });
 
@@ -93,7 +96,10 @@ describe('CatalogService', () => {
         });
 
         it('should find all schools', async () => {
-            const schools = [mockSchool, { ...mockSchool, id: '2', name: 'Other School' }];
+            const schools = [
+                mockSchool,
+                { ...mockSchool, id: '2', name: 'Other School' },
+            ];
             mockPrismaService.school.findMany.mockResolvedValue(schools);
 
             const result = await service.findAllSchools();
@@ -123,10 +129,10 @@ describe('CatalogService', () => {
         };
 
         it('should create a course', async () => {
-            const createData = { title: 'Test Course', schoolId: '1' };
+            const createData: Prisma.CourseUncheckedCreateInput = { title: 'Test Course', schoolId: '1' };
             mockPrismaService.course.create.mockResolvedValue(mockCourse);
 
-            const result = await service.createCourse(createData as any);
+            const result = await service.createCourse(createData);
 
             expect(prisma.course.create).toHaveBeenCalledWith({ data: createData });
             expect(result).toEqual(mockCourse);
@@ -146,7 +152,9 @@ describe('CatalogService', () => {
 
             const result = await service.findSchoolCourses('1');
 
-            expect(prisma.course.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { schoolId: '1' } }));
+            expect(prisma.course.findMany).toHaveBeenCalledWith(
+                expect.objectContaining({ where: { schoolId: '1' } }),
+            );
             expect(result).toEqual([mockCourse]);
         });
 
@@ -155,7 +163,9 @@ describe('CatalogService', () => {
 
             const result = await service.findCourseById('1');
 
-            expect(prisma.course.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: '1' } }));
+            expect(prisma.course.findUnique).toHaveBeenCalledWith(
+                expect.objectContaining({ where: { id: '1' } }),
+            );
             expect(result).toEqual(mockCourse);
         });
 
@@ -184,12 +194,14 @@ describe('CatalogService', () => {
             };
 
             it('should add a module to a course', async () => {
-                const createData = { title: 'Test Module', order: 1 };
+                const createData: Omit<Prisma.ModuleUncheckedCreateInput, 'courseId'> = { title: 'Test Module', order: 1 };
                 mockPrismaService.module.create.mockResolvedValue(mockModule);
 
-                const result = await service.addModuleToCourse('1', createData as any);
+                const result = await service.addModuleToCourse('1', createData);
 
-                expect(prisma.module.create).toHaveBeenCalledWith({ data: { ...createData, courseId: '1' } });
+                expect(prisma.module.create).toHaveBeenCalledWith({
+                    data: { ...createData, courseId: '1' },
+                });
                 expect(result).toEqual(mockModule);
             });
 
@@ -198,7 +210,9 @@ describe('CatalogService', () => {
 
                 const result = await service.deleteModule('1');
 
-                expect(prisma.module.delete).toHaveBeenCalledWith({ where: { id: '1' } });
+                expect(prisma.module.delete).toHaveBeenCalledWith({
+                    where: { id: '1' },
+                });
                 expect(result).toEqual(mockModule);
             });
 
@@ -207,17 +221,21 @@ describe('CatalogService', () => {
 
                 const result = await service.findModuleById('1');
 
-                expect(prisma.module.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: '1' } }));
+                expect(prisma.module.findUnique).toHaveBeenCalledWith(
+                    expect.objectContaining({ where: { id: '1' } }),
+                );
                 expect(result).toEqual(mockModule);
             });
 
             it('should add a lesson to a module', async () => {
-                const createData = { title: 'Test Lesson' };
+                const createData: Omit<Prisma.LessonUncheckedCreateInput, 'moduleId'> = { title: 'Test Lesson' };
                 mockPrismaService.lesson.create.mockResolvedValue(mockLesson);
 
-                const result = await service.addLessonToModule('1', createData as any);
+                const result = await service.addLessonToModule('1', createData);
 
-                expect(prisma.lesson.create).toHaveBeenCalledWith({ data: { ...createData, moduleId: '1' } });
+                expect(prisma.lesson.create).toHaveBeenCalledWith({
+                    data: { ...createData, moduleId: '1' },
+                });
                 expect(result).toEqual(mockLesson);
             });
 
@@ -226,7 +244,9 @@ describe('CatalogService', () => {
 
                 const result = await service.deleteLesson('1');
 
-                expect(prisma.lesson.delete).toHaveBeenCalledWith({ where: { id: '1' } });
+                expect(prisma.lesson.delete).toHaveBeenCalledWith({
+                    where: { id: '1' },
+                });
                 expect(result).toEqual(mockLesson);
             });
 
@@ -235,7 +255,9 @@ describe('CatalogService', () => {
 
                 const result = await service.findLessonById('1');
 
-                expect(prisma.lesson.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: '1' } }));
+                expect(prisma.lesson.findUnique).toHaveBeenCalledWith(
+                    expect.objectContaining({ where: { id: '1' } }),
+                );
                 expect(result).toEqual(mockLesson);
             });
 
