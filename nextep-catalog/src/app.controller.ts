@@ -12,10 +12,11 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiProperty } from '@nestjs/swagger';
 import { CatalogService } from './app.service';
 import { AuthGuard } from './app.guard';
 
-export interface AuthenticatedUser {
+export class AuthenticatedUser {
   sub: string;
   email: string;
   role?: string;
@@ -26,41 +27,61 @@ export interface RequestWithUser extends Request {
   user: AuthenticatedUser;
 }
 
-export interface CreateSchoolData {
+export class CreateSchoolData {
+  @ApiProperty()
   name: string;
+  @ApiProperty({ required: false })
   description?: string;
+  @ApiProperty({ required: false })
   logoUrl?: string;
+  @ApiProperty({ required: false })
   website?: string;
 }
 
-export interface CreateCourseData {
+export class CreateCourseData {
+  @ApiProperty()
   title: string;
+  @ApiProperty({ required: false })
   description?: string;
+  @ApiProperty({ required: false })
   price?: number;
+  @ApiProperty({ required: false })
   duration?: string;
+  @ApiProperty({ required: false })
   thumbnail?: string;
+  @ApiProperty()
   schoolId: string;
 }
 
-export interface CreateModuleData {
+export class CreateModuleData {
+  @ApiProperty()
   title: string;
+  @ApiProperty()
   order: number;
+  @ApiProperty()
   courseId: string;
 }
 
-export interface CreateLessonData {
+export class CreateLessonData {
+  @ApiProperty()
   title: string;
+  @ApiProperty({ required: false })
   content?: string;
+  @ApiProperty({ required: false })
   videoUrl?: string;
+  @ApiProperty()
   moduleId: string;
 }
 
+@ApiTags('catalog')
+@ApiBearerAuth()
 @Controller('catalog')
 @UseGuards(AuthGuard)
 export class CatalogController {
-  constructor(private readonly catalogService: CatalogService) {}
+  constructor(private readonly catalogService: CatalogService) { }
 
   @Post('schools')
+  @ApiOperation({ summary: 'Create a new school' })
   async createSchool(
     @Body() data: CreateSchoolData,
     @Req() req: RequestWithUser,
@@ -71,6 +92,7 @@ export class CatalogController {
 
   @Delete('schools/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a school' })
   async deleteSchool(@Param('id') id: string, @Req() req: RequestWithUser) {
     const ownerId = req.user.sub;
     const school = await this.catalogService.findSchoolById(id);
@@ -83,16 +105,19 @@ export class CatalogController {
   }
 
   @Get('schools/:id')
+  @ApiOperation({ summary: 'Get school details' })
   async getSchool(@Param('id') id: string) {
     return this.catalogService.findSchoolById(id);
   }
 
   @Get('schools')
+  @ApiOperation({ summary: 'Get all schools' })
   async getAllSchool() {
     return this.catalogService.findAllSchools();
   }
 
   @Post('schools/:schoolId/courses')
+  @ApiOperation({ summary: 'Create a course for a school' })
   async createCourse(
     @Param('schoolId') schoolId: string,
     @Body() data: CreateCourseData,
@@ -111,6 +136,7 @@ export class CatalogController {
 
   @Delete('courses/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a course' })
   async deleteCourse(@Param('id') id: string, @Req() req: RequestWithUser) {
     const ownerId = req.user.sub;
     const course = await this.catalogService.findCourseById(id);
@@ -123,21 +149,25 @@ export class CatalogController {
   }
 
   @Get('courses')
+  @ApiOperation({ summary: 'Get all courses' })
   async getAllCourses() {
     return this.catalogService.findAllCourses();
   }
-  
+
   @Get('schools/:schoolId/courses')
+  @ApiOperation({ summary: 'Get all courses of a school' })
   async getSchoolCourse(@Param('schoolId') schoolId: string) {
     return this.catalogService.findSchoolCourses(schoolId);
   }
 
   @Get('courses/:id')
+  @ApiOperation({ summary: 'Get course details' })
   async getCourseDetails(@Param('id') id: string) {
     return this.catalogService.findCourseById(id);
   }
 
   @Post('courses/:courseId/modules')
+  @ApiOperation({ summary: 'Add a module to a course' })
   async addModule(
     @Param('courseId') courseId: string,
     @Body() data: CreateModuleData,
@@ -154,6 +184,7 @@ export class CatalogController {
 
   @Delete('modules/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a module' })
   async deleteModule(@Param('id') id: string, @Req() req: RequestWithUser) {
     const ownerId = req.user.sub;
     const module = await this.catalogService.findModuleById(id);
@@ -165,6 +196,7 @@ export class CatalogController {
   }
 
   @Post('modules/:moduleId/lessons')
+  @ApiOperation({ summary: 'Add a lesson to a module' })
   async addLesson(
     @Param('moduleId') moduleId: string,
     @Body() data: CreateLessonData,
@@ -181,6 +213,7 @@ export class CatalogController {
 
   @Delete('lessons/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a lesson' })
   async deleteLesson(@Param('id') id: string, @Req() req: RequestWithUser) {
     const ownerId = req.user.sub;
     const lesson = await this.catalogService.findLessonById(id);
