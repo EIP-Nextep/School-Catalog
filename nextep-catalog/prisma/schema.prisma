@@ -1,10 +1,11 @@
 generator client {
   provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["auth", "catalog"]
+  schemas  = ["catalog"]
 }
 
 model School {

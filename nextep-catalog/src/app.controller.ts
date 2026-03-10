@@ -129,7 +129,7 @@ export class CatalogController {
   
   @Get('schools/:schoolId/courses')
   async getSchoolCourse(@Param('schoolId') schoolId: string) {
-    return this.catalogService.findCourseById(schoolId);
+    return this.catalogService.findSchoolCourses(schoolId);
   }
 
   @Get('courses/:id')
