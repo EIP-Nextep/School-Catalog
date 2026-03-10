@@ -8,5 +8,9 @@
   "dependencies": {
     "@nestjs/swagger": "^11.2.6",
     "@prisma/client": "^7.4.2"
+  },
+  "scripts": {
+    "lint": "npm run lint --prefix nextep-catalog",
+    "test": "npm run test --prefix nextep-catalog"
   }
 }
