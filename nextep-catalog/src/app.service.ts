@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CatalogService {
   constructor(private prisma: PrismaService) {}
 
-  async createSchool(data: any) {
+  async createSchool(data: Prisma.SchoolUncheckedCreateInput) {
     return this.prisma.school.create({ data });
   }
 
@@ -30,7 +31,7 @@ export class CatalogService {
     return this.prisma.school.delete({ where: { id } });
   }
 
-  async createCourse(data: any) {
+  async createCourse(data: Prisma.CourseUncheckedCreateInput) {
     return this.prisma.course.create({ data });
   }
 
@@ -49,7 +50,7 @@ export class CatalogService {
 
   async findSchoolCourses(schoolId: string) {
     return this.prisma.course.findMany({
-      where: {schoolId},
+      where: { schoolId },
       include: {
         school: true,
         modules: {
@@ -80,13 +81,19 @@ export class CatalogService {
   }
 
   // --- MODULES & LEÇONS ---
-  async addModuleToCourse(courseId: string, data: any) {
+  async addModuleToCourse(
+    courseId: string,
+    data: Omit<Prisma.ModuleUncheckedCreateInput, 'courseId'>,
+  ) {
     return this.prisma.module.create({
       data: { ...data, courseId },
     });
   }
 
-  async addLessonToModule(moduleId: string, data: any) {
+  async addLessonToModule(
+    moduleId: string,
+    data: Omit<Prisma.LessonUncheckedCreateInput, 'moduleId'>,
+  ) {
     return this.prisma.lesson.create({
       data: { ...data, moduleId },
     });

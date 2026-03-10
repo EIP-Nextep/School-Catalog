@@ -12,7 +12,12 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiProperty } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { CatalogService } from './app.service';
 import { AuthGuard } from './app.guard';
 
@@ -78,7 +83,7 @@ export class CreateLessonData {
 @Controller('catalog')
 @UseGuards(AuthGuard)
 export class CatalogController {
-  constructor(private readonly catalogService: CatalogService) { }
+  constructor(private readonly catalogService: CatalogService) {}
 
   @Post('schools')
   @ApiOperation({ summary: 'Create a new school' })
