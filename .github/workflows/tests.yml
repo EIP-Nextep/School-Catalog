@@ -22,5 +22,8 @@ jobs:
       - name: Installation des dépendances
         run: npm ci 
 
+      - name: Generate Prisma Client
+        run: DATABASE_URL="postgres://user:pass@localhost:5432/db" npx prisma generate
+
       - name: Lancement des tests
         run: npm run test
