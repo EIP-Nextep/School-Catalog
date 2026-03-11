@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from './prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "./prisma/prisma.service";
+import { Prisma } from "@prisma/client";
+import { HttpService } from "@nestjs/axios";
+import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class CatalogService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private httpService: HttpService,
+  ) {}
 
   async createSchool(data: Prisma.SchoolUncheckedCreateInput) {
     return this.prisma.school.create({ data });
@@ -12,7 +17,7 @@ export class CatalogService {
 
   async findSchoolById(id: string) {
     const school = await this.prisma.school.findUnique({ where: { id } });
-    if (!school) throw new NotFoundException('École non trouvée');
+    if (!school) throw new NotFoundException("École non trouvée");
     return school;
   }
 
@@ -31,8 +36,26 @@ export class CatalogService {
     return this.prisma.school.delete({ where: { id } });
   }
 
-  async createCourse(data: Prisma.CourseUncheckedCreateInput) {
-    return this.prisma.course.create({ data });
+  async createCourse(
+    data: Prisma.CourseUncheckedCreateInput,
+    authHeader: string,
+  ) {
+    const res = await this.prisma.course.create({ data });
+    await firstValueFrom(
+      this.httpService.post(
+        `${process.env.MATCHING_SERVICE_URL}/courses`,
+        {
+          id: res.id,
+          domainIds: res.domainIds,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${authHeader}`,
+          },
+        },
+      ),
+    );
+    return res;
   }
 
   async findAllCourses() {
@@ -83,7 +106,7 @@ export class CatalogService {
   // --- MODULES & LEÇONS ---
   async addModuleToCourse(
     courseId: string,
-    data: Omit<Prisma.ModuleUncheckedCreateInput, 'courseId'>,
+    data: Omit<Prisma.ModuleUncheckedCreateInput, "courseId">,
   ) {
     return this.prisma.module.create({
       data: { ...data, courseId },
@@ -92,7 +115,7 @@ export class CatalogService {
 
   async addLessonToModule(
     moduleId: string,
-    data: Omit<Prisma.LessonUncheckedCreateInput, 'moduleId'>,
+    data: Omit<Prisma.LessonUncheckedCreateInput, "moduleId">,
   ) {
     return this.prisma.lesson.create({
       data: { ...data, moduleId },

@@ -18,7 +18,6 @@ model School {
   ownerId     String   @unique 
 
   courses     Course[]
-
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   @@schema("catalog")
@@ -36,6 +35,7 @@ model Course {
   school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   
   modules     Module[]
+  domainIds   String[]
   categories  Category[] @relation("CourseToCategory")
 
   createdAt   DateTime @default(now())
