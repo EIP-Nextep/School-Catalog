@@ -21,6 +21,7 @@ import {
 } from "@nestjs/swagger";
 import { CatalogService } from "./app.service";
 import { AuthGuard } from "./app.guard";
+import { Public } from "./public.decorator";
 
 export class AuthenticatedUser {
   sub: string;
@@ -155,6 +156,7 @@ export class CatalogController {
     return this.catalogService.deleteCourse(id);
   }
 
+  @Public()
   @Get("courses")
   @ApiOperation({ summary: "Get all courses" })
   async getAllCourses() {
