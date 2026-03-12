@@ -157,6 +157,13 @@ export class CatalogController {
   }
 
   @Public()
+  @Get("categories")
+  @ApiOperation({ summary: "Get all categories" })
+  async getAllCategories() {
+    return this.catalogService.findAllCategories();
+  }
+
+  @Public()
   @Get("courses")
   @ApiOperation({ summary: "Get all courses" })
   async getAllCourses() {

@@ -58,6 +58,14 @@ export class CatalogService {
     return res;
   }
 
+  async findAllCategories() {
+    return this.prisma.category.findMany({
+      include: {
+        courses: true,
+      },
+    });
+  }
+
   async findAllCourses() {
     return this.prisma.course.findMany({
       include: {
