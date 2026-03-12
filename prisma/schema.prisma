@@ -1,0 +1,71 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["catalog"]
+}
+
+model School {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  logoUrl     String?
+  website     String?
+  
+  ownerId     String   @unique 
+
+  courses     Course[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@schema("catalog")
+}
+
+model Course {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  price       Float    @default(0)
+  duration    String?
+  thumbnail   String?
+  
+  schoolId    String
+  school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  
+  modules     Module[]
+  domainIds   String[]
+  categories  Category[] @relation("CourseToCategory")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@schema("catalog")
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  title       String
+  order       Int
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+  @@schema("catalog")
+}
+
+model Lesson {
+  id        String   @id @default(uuid())
+  title     String
+  content   String?
+  videoUrl  String?
+  moduleId  String
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  @@schema("catalog")
+}
+
+model Category {
+  id      String   @id @default(uuid())
+  name    String   @unique
+  courses Course[] @relation("CourseToCategory")
+  @@schema("catalog")
+}

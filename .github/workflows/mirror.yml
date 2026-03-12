@@ -4,8 +4,9 @@ on:
   push:
     branches: ["main", "dev"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "dev"]
     types: ["closed"]
+
 
 jobs:
   push-to-folder:
@@ -26,10 +27,10 @@ jobs:
           SSH_DEPLOY_KEY: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
         with:
           source-directory: '.' 
-          destination-github-username: 'EpitechPGE3-2025' 
-          destination-repository-name: 'G-EIP-600-PAR-6-1-eip-5' 
+          destination-github-username: 'EIP-Nextep' 
+          destination-repository-name: 'Nextep' 
           user-email: ${{ github.actor }}@users.noreply.github.com
           
           target-directory: 'School-Catalogue' 
           
-          target-branch: 'main'
+          target-branch: 'dev'
